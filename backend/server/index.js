@@ -2,10 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
+const cron = require("node-cron");
 
 const fs = require("fs");
 const path = require("path");
 const util = require("util");
+
+const cronsFolder = path.join(__dirname, '../crons');
 
 const port = 3691;
 const SUCCESS_HTTP_CODE = 200;
@@ -15,7 +18,7 @@ const successResponse = {
   status: SUCCESS_HTTP_CODE,
   statusMessage: "OK",
   resp: {},
-};
+}; 
 const errorResponse = {
   status: SERVER_ERROR_CODE,
   statusMessage: "Error",
@@ -37,7 +40,16 @@ const getAndPrintErrorString = (url, error) => {
 };
 
 app.post("/cron", (req, res) => {
-  res.sendStatus(501);
+  try {
+    cron.schedule("*/5 * * * * *", () => {
+      const cp = require("child_process");
+      cp.execSync(`node ${path.join(cronsFolder, './cron1.js')}`);
+    });
+
+    res.status(SUCCESS_HTTP_CODE).json({...successResponse, resp: `cron created.`});
+	} catch(e) {
+		res.status(SERVER_ERROR_CODE).json({...errorResponse, resp: getAndPrintErrorString(req.url, e)});
+	}
 });
 
 app.get("/listCrons", (req, res) => {
