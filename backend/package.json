@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon server/index.js"
+    "server": "nodemon --watch .tmp/restart.txt server/index.js"
   },
   "author": "Pranav Jain <pranavj1001@gmail.com>",
   "license": "ISC",

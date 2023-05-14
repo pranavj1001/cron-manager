@@ -60,6 +60,14 @@ app.delete("/cron", (req, res) => {
   res.sendStatus(501);
 });
 
+app.get("/restart_server", (req, res) => {
+  restartCronfig();
+
+  res
+    .status(SUCCESS_HTTP_CODE)
+    .json({ ...successResponse, resp: "HEALTH OK!" });
+});
+
 app.get("/", (req, res) => {
   res
     .status(SUCCESS_HTTP_CODE)
