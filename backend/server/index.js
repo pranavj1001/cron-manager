@@ -61,11 +61,14 @@ app.delete("/cron", (req, res) => {
 });
 
 app.get("/restart_server", (req, res) => {
+  try {
   restartCronfig();
-
   res
     .status(SUCCESS_HTTP_CODE)
     .json({ ...successResponse, resp: "HEALTH OK!" });
+  } catch(e) {
+		res.status(SERVER_ERROR_CODE).json({...errorResponse, resp: getAndPrintErrorString(req.url, e)});
+	}
 });
 
 app.get("/", (req, res) => {
@@ -76,4 +79,5 @@ app.get("/", (req, res) => {
 
 app.listen(port, () => {
   console.log(`cron-manager backend server initialized on port ${port}`);
+  loadUpCrons();
 });
