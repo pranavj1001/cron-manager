@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cron = require("node-cron");
 
-const fs = require("fs");
 const path = require("path");
 const util = require("util");
 
@@ -13,7 +12,9 @@ const {
   restartCronfig,
   getCronfig,
   appendCronfig,
-  loadUpCrons
+  checkIfTaskConfigExists,
+  loadUpCrons,
+  popCronfig
 } = require('./cron-config');
 
 const cronsFolder = path.join(__dirname, '../crons');
@@ -23,6 +24,7 @@ const port = 3691;
 const SUCCESS_HTTP_CODE = 200;
 const SERVER_ERROR_CODE = 500;
 const BAD_REQ_ERROR_CODE = 400;
+const NOT_FOUND_ERROR_CODE = 404;
 const successResponse = {
   status: SUCCESS_HTTP_CODE,
   statusMessage: "OK",
@@ -130,7 +132,31 @@ app.get("/listCrons", (req, res) => {
 });
 
 app.delete("/cron", (req, res) => {
-  res.sendStatus(501);
+  try {
+    if (!req.body || !req.body.cronFileName || !req.body.name) {
+      res.status(BAD_REQ_ERROR_CODE).json({...errorResponse, status: BAD_REQ_ERROR_CODE, resp: `Request Body is not in proper format`});
+      return;
+    }
+
+    const tasksConfig = JSON.parse(getCronfig());
+    let deletedConfig = false;
+    if (tasksConfig && tasksConfig.length > 0 && checkIfTaskConfigExists(tasksConfig, {options: {name: req.body.name}})) {
+      for (let i = 0; i < tasksConfig.length; i++) {
+        if (tasksConfig[i].options.name === req.body.name && tasksConfig[i].cronFileName && req.body.cronFileName) {
+          deletedConfig = popCronfig(tasksConfig, i);
+        }
+      }
+    }
+    if (deletedConfig) {
+      res.status(SUCCESS_HTTP_CODE).json({...successResponse, resp: 'Deleted Cron Successfully.'});
+      restartCronfig();
+      return;
+    } else {
+      res.status(NOT_FOUND_ERROR_CODE).json({...successResponse, resp: 'Cron Deletion Failed.'});
+    }
+	} catch(e) {
+		res.status(SERVER_ERROR_CODE).json({...errorResponse, resp: getAndPrintErrorString(req.url, e)});
+	}
 });
 
 app.get("/restart_server", (req, res) => {

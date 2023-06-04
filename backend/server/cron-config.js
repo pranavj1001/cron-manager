@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
 const cron = require("node-cron");
+const util = require("util");
 
 const CONFIG_FILE = path.resolve(__dirname, '../config', 'config.json');
 const cronsFolder = path.join(__dirname, '../crons');
@@ -47,7 +48,25 @@ const appendCronfig = (expression, cronFileName, options) => {
   tasksConfig.push(currentTaskConfig);
   fs.writeFileSync(CONFIG_FILE, JSON.stringify(tasksConfig));
   return [0, currentTaskConfig];
+};
 
+const popCronfig = (tasksConfig, configIndexToBeDeleted) => {
+  try {
+    if (tasksConfig && tasksConfig.length > 0) {
+      console.log(tasksConfig);
+      deletedObjArray = tasksConfig.splice(configIndexToBeDeleted, 1);
+      console.log(tasksConfig);
+      if (deletedObjArray[0].options.name !== "") {
+        fs.writeFileSync(CONFIG_FILE, JSON.stringify(tasksConfig));
+        return true;
+      } else {
+        return false;
+      }
+    }
+  } catch (e) {
+    console.log(`Deletion Failed. Parameters sent - tasksConfig: ${util.inspect(tasksConfig)}, configIndexToBeDeleted: ${configIndexToBeDeleted}. Exception Details: ${util.inspect(e)}`);
+    return false;
+  }
 };
 
 const getCronfig = () => {
@@ -71,4 +90,4 @@ const restartCronfig = () => {
   // loadUpCrons();
 };
 
-module.exports = { loadUpCrons, appendCronfig, getCronfig, setUpDefaultCronfig, restartCronfig };
+module.exports = { loadUpCrons, appendCronfig, getCronfig, setUpDefaultCronfig, restartCronfig, checkIfTaskConfigExists, popCronfig };
