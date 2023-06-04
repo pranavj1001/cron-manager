@@ -11,6 +11,7 @@ const util = require("util");
 
 const {
   restartCronfig,
+  getCronfig,
   appendCronfig,
   loadUpCrons
 } = require('./cron-config');
@@ -99,7 +100,7 @@ app.post("/cron", (req, res) => {
       // schedule the cron
       const requestBody = req.body;
       cron.schedule(requestBody.expression, () => {
-      const cp = require("child_process");
+        const cp = require("child_process");
         cp.execSync(`node ${path.join(cronsFolder, cronFileName)}`);
       }, { name: requestBody.name });
 
@@ -120,7 +121,12 @@ app.post("/cron", (req, res) => {
 });
 
 app.get("/listCrons", (req, res) => {
-  res.sendStatus(501);
+  try {
+    const activeCronfig = getCronfig();
+    res.status(SUCCESS_HTTP_CODE).json({...successResponse, resp: activeCronfig});
+	} catch(e) {
+		res.status(SERVER_ERROR_CODE).json({...errorResponse, resp: getAndPrintErrorString(req.url, e)});
+	}
 });
 
 app.delete("/cron", (req, res) => {
@@ -129,10 +135,10 @@ app.delete("/cron", (req, res) => {
 
 app.get("/restart_server", (req, res) => {
   try {
-  restartCronfig();
-  res
-    .status(SUCCESS_HTTP_CODE)
-    .json({ ...successResponse, resp: "HEALTH OK!" });
+    restartCronfig();
+    res
+      .status(SUCCESS_HTTP_CODE)
+      .json({ ...successResponse, resp: "HEALTH OK!" });
   } catch(e) {
 		res.status(SERVER_ERROR_CODE).json({...errorResponse, resp: getAndPrintErrorString(req.url, e)});
 	}
