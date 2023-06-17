@@ -1,13 +1,13 @@
 import TreeItem from "./TreeItem";
 
-function Tree({treeList, treeClickEvent, checkBoxTree}) {
+function Tree({treeList, treeClickEvent, checkBoxTree, cronsTree}) {
 
   const handleClickEvent = (e) => {
     treeClickEvent(e);
   };
 
   const renderedTree = treeList.map((object) => {
-    return <TreeItem object={object} key={object.index} listItemClickEvent={handleClickEvent} showCheckbox={checkBoxTree} isCrons={true} />
+    return <TreeItem object={object} key={object.index} listItemClickEvent={handleClickEvent} showCheckbox={checkBoxTree} isCrons={cronsTree} />
   });
 
   return <div>{renderedTree}</div>;

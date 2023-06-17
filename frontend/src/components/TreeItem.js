@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFile, faFolder } from '@fortawesome/free-solid-svg-icons'
 
 function TreeItem({object, listItemClickEvent, showCheckbox, isCrons}) {
-  const {index, name, isDir, fullPath, selected} = object;
+  const {index, name, isDir, fullPath, expression, cronFileName, options, selected} = object;
 
   const [inputChecked, setInputChecked] = useState(false);
 
@@ -22,6 +22,20 @@ function TreeItem({object, listItemClickEvent, showCheckbox, isCrons}) {
       setInputChecked(selected);
     }
   }, [selected, showCheckbox, setInputChecked]);
+  console.log(object);
+  if (isCrons) {
+    if (showCheckbox) {
+
+    } else {
+      return (
+      <div className="columns">
+        <div className="column">{options.name}</div>
+        <div className="column">{cronFileName}</div>
+        <div className="column">{expression}</div>
+      </div>
+      )
+    }
+  }
 
   if (showCheckbox) {
     return (

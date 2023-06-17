@@ -2,8 +2,16 @@
   cursor: pointer;
 }
 
+.heading-2 {
+  font-size: 1.3rem;
+}
+
 .margin-top-20px {
   margin-top: 20px;
+}
+
+.margin-bottom-20px {
+  margin-bottom: 20px;
 }
 
 .margin-top-5px {

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import './common.css';
 import Footer from "./Footer";
 import Modal from "./Modal";
+import Tree from "./Tree";
 import { MODAL_TYPES } from '../constants';
 import { getCrons } from '../api';
 
@@ -14,6 +15,11 @@ function App() {
     getCrons()
       .then((result) => {
         if (result?.status === 200) {
+          let index = 0;
+          for (const cron of result.data["resp"]) {
+            cron.index = index;
+            index++;
+          }
           if (!ignore) {
             setCrons(result.data["resp"]);
           }
@@ -37,6 +43,10 @@ function App() {
     return () => ignore = true;
   }, []);
 
+  const cronClickEvent = () => {
+    console.log('Cron Clicked');
+  };
+
   return (
     <div className="container hero is-fullheight max-width">
       <div className="margin-left-20px margin-right-20px margin-top-20px">
@@ -46,6 +56,13 @@ function App() {
             <Modal data={MODAL_TYPES.DELETE_CRONS} updateTree={loadCrons} items={crons} />
           </div>
           <hr className="solid" />
+          <h2 className="margin-bottom-20px heading-2"><b>Active Crons</b></h2>
+          <div className="columns">
+            <div className="column"><b>Cron Name</b></div>
+            <div className="column"><b>Cron File</b></div>
+            <div className="column"><b>Cron Expression</b></div>
+          </div>
+          {(crons && crons.length > 0) ? <Tree treeList={crons} treeClickEvent={cronClickEvent} checkBoxTree={false} cronsTree={true} /> : "No Crons Active"}
       </div>
       <Footer />
     </div>

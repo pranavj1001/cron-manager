@@ -122,7 +122,7 @@ function Modal({ data, items }) {
           />
         );
       case 2:
-        return (<Tree treeList={items} treeClickEvent={handleItemClicked} checkBoxTree={true} />)
+        return (<Tree treeList={items} treeClickEvent={handleItemClicked} checkBoxTree={true} cronsTree={true} />)
       default:
         console.log("Modal ID not specified");
     }
