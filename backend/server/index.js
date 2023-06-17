@@ -122,9 +122,9 @@ app.post("/cron", (req, res) => {
 	}
 });
 
-app.get("/listCrons", (req, res) => {
+app.get("/crons", (req, res) => {
   try {
-    const activeCronfig = getCronfig();
+    const activeCronfig = JSON.parse(getCronfig());
     res.status(SUCCESS_HTTP_CODE).json({...successResponse, resp: activeCronfig});
 	} catch(e) {
 		res.status(SERVER_ERROR_CODE).json({...errorResponse, resp: getAndPrintErrorString(req.url, e)});
