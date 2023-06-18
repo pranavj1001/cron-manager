@@ -59,19 +59,22 @@ const getAndPrintErrorString = (url, error) => {
 app.post("/cron", (req, res) => {
   try {
 
+    req.files = Object.assign({}, req.files);
     console.log(req.files);
+    req.body = Object.assign({}, req.body);
+    console.log(req.body);
 
     // check the request body
 		if (
 			!req.files ||
 			Object.keys(req.files).length === 0 ||
-			!req.files["crons"]
+			!req.files["files[]"]
 		) {
 			res.status(BAD_REQ_ERROR_CODE).json({...errorResponse, status: BAD_REQ_ERROR_CODE, resp: `Crons not found. No files were uploaded.`});
       return;
 		}
 
-    if (!req.body || !req.body.expression || !req.body.cronFileName || !req.body.name) {
+    if (!req.body || !req.body.expression || !req.body.name) {
       res.status(BAD_REQ_ERROR_CODE).json({...errorResponse, status: BAD_REQ_ERROR_CODE, resp: `Request Body is not in proper format`});
       return;
     }
@@ -80,17 +83,16 @@ app.post("/cron", (req, res) => {
     let files = [];
 		if (Array.isArray(req.files["crons"])) {
 			console.log("multiple files upload");
-			files = req.files["crons"];
+			files = req.files["files[]"];
 		} else {
 			console.log("single file upload");
-			files.push(req.files["crons"]);
+			files.push(req.files["files[]"]);
 		}
 
-    let cronFileName = "";
+    const requestBody = req.body;
 		for (const file of files) {
 			console.log(file);
-			const uploadPath = `${cronsFolder}/${file.name}`;
-      cronFileName = file.name;
+			const uploadPath = `${cronsFolder}/${requestBody.name}/${file.name}`;
 			file.mv(uploadPath, (err) => {
 				if (err) {
 					res.status(SERVER_ERROR_CODE).json({...errorResponse, resp: `Error occurred while uploading ${file.name} on ${uploadPath}`});
@@ -100,10 +102,9 @@ app.post("/cron", (req, res) => {
 			});
 
       // schedule the cron
-      const requestBody = req.body;
       cron.schedule(requestBody.expression, () => {
         const cp = require("child_process");
-        cp.execSync(`node ${path.join(cronsFolder, cronFileName)}`);
+        cp.execSync(`node "${uploadPath}"`);
       }, { name: requestBody.name });
 
       // save the cron config
@@ -143,9 +144,9 @@ app.delete("/cron", (req, res) => {
     let deletedConfig = false;
     for (const deletedItem of req.body) {
       if (tasksConfig && tasksConfig.length > 0 && checkIfTaskConfigExists(tasksConfig, {options: {name: deletedItem.options.name}})) {
-      for (let i = 0; i < tasksConfig.length; i++) {
+        for (let i = 0; i < tasksConfig.length; i++) {
           if (tasksConfig[i].options.name === deletedItem.options.name && tasksConfig[i].cronFileName && deletedItem.cronFileName) {
-          deletedConfig = popCronfig(tasksConfig, i);
+            deletedConfig = popCronfig(tasksConfig, i);
           }
         }
       }
