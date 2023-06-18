@@ -52,8 +52,8 @@ function App() {
       <div className="margin-left-20px margin-right-20px margin-top-20px">
         <hr className="solid" />
           <div>
-            <Modal data={MODAL_TYPES.CREATE_CRON} updateTree={loadCrons} />
-            <Modal data={MODAL_TYPES.DELETE_CRONS} updateTree={loadCrons} items={crons} />
+            <Modal data={MODAL_TYPES.CREATE_CRON} updateTree={loadCrons} updateContents={loadCrons} />
+            <Modal data={MODAL_TYPES.DELETE_CRONS} updateTree={loadCrons} updateContents={loadCrons} items={crons} />
           </div>
           <hr className="solid" />
           <h2 className="margin-bottom-20px heading-2"><b>Active Crons</b></h2>

@@ -3,10 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import Tree from "./Tree";
 import { postCron, deleteCron } from "../api";
+import { inspect } from "util";
 
-function Modal({ data, items }) {
+function Modal({ data, updateContents, items }) {
   const [isModalActive, toggleModal] = useState(false);
-  const [folderName, setFolderName] = useState("");
+  const [cronName, setCronName] = useState("");
+  const [cronExpression, setCronExpression] = useState("");
   const [filesName, setFilesName] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [files, setFiles] = useState([]);
@@ -28,12 +30,17 @@ function Modal({ data, items }) {
     toggleModal(!isModalActive);
   };
 
-  const handleFolderNameInputChange = (event) => {
-    setFolderName(event.target.value);
+  const handleCronExpressionInputChange = (event) => {
+    setCronExpression(event.target.value);
+  };
+
+  const handleCronNameInputChange = (event) => {
+    setCronName(event.target.value);
   };
 
   const handleFilesInputChange = (event) => {
     let name = "";
+    console.log(event);
     for (const file of event.target.files) {
       name += `${file.name}, `
     }
@@ -49,22 +56,33 @@ function Modal({ data, items }) {
   }
 
   const createCron = () => {
-    console.log('create Cron');
-    // postCreateFolder(`${path}/${folderName}`)
-    //   .then((result) => {
-    //     if (result?.status === 200) {
-    //       updateTree();
-    //       changeModalStatus();
-    //       setFolderName("");
-    //     } else {
-    //       console.log(`Not able to create the folder. More details ${result}`);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.error(
-    //       `Some Error Occurred while creating the folder ${inspect(err)}`
-    //     );
-    //   });
+
+    console.log(cronExpression);
+    console.log(cronName);
+    console.log(files);
+    const requestBody = {
+      expression: cronExpression,
+      name: cronName,
+      files
+    };
+    postCron(requestBody)
+      .then((result) => {
+        if (result?.status === 200) {
+          updateContents();
+          changeModalStatus();
+          setCronExpression("");
+          setCronName("");
+          setFilesName("");
+          setFiles([]);
+        } else {
+          console.log(`Not able to schedule the cron. More details ${result}`);
+        }
+      })
+      .catch((err) => {
+        console.error(
+          `Some Error Occurred while scheduling the cron ${inspect(err)}`
+        );
+      });
   };
 
   const deleteSelectedCrons = () => {
@@ -81,23 +99,23 @@ function Modal({ data, items }) {
       return;
     }
 
-    console.log('delete');
+    console.log('delete', itemsToDeleteFound, selectedItems);
 
-    // deletePaths(path, selectedItems.filter(i => i.selected === true))
-    //   .then((result) => {
-    //     console.log(result);
-    //     if (result?.status === 200) {
-    //       updateTree();
-    //       changeModalStatus();
-    //     } else {
-    //       console.log(`Not able to delete the files. More details ${result}`);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.error(
-    //       `Some Error Occurred while deleting the files ${inspect(err)}`
-    //     );
-    //   });
+    deleteCron(selectedItems.filter(i => i.selected === true))
+      .then((result) => {
+        console.log(result);
+        if (result?.status === 200) {
+          updateContents();
+          changeModalStatus();
+        } else {
+          console.log(`Not able to delete the crons. More details ${result}`);
+        }
+      })
+      .catch((err) => {
+        console.error(
+          `Some Error Occurred while deleting the crons ${inspect(err)}`
+        );
+      });
   };
 
   useEffect(() => {
@@ -113,13 +131,47 @@ function Modal({ data, items }) {
     switch (data.id) {
       case 1:
         return (
-          <input
-            className="input is-primary"
-            type="text"
-            placeholder="Folder Name"
-            value={folderName}
-            onChange={handleFolderNameInputChange}
-          />
+          <div>
+            <input
+              className="input is-primary margin-bottom-20px"
+              type="text"
+              placeholder="Cron Name"
+              value={cronName}
+              onChange={handleCronNameInputChange}
+            />
+
+            <input
+              className="input is-primary margin-bottom-20px"
+              type="text"
+              placeholder="Cron Expression"
+              value={cronExpression}
+              onChange={handleCronExpressionInputChange}
+            />
+
+            <div className="columns is-centered">
+              <div className="file is-medium is-boxed has-name column">
+                <label className="file-label">
+                  <input
+                    className="file-input"
+                    type="file"
+                    name="items"
+                    multiple
+                    onChange={handleFilesInputChange}
+                  />
+                  <span className="file-cta">
+                    <span className="file-icon">
+                      <FontAwesomeIcon icon={faUpload} />
+                    </span>
+                    <span className="file-label">Add your files here</span>
+                  </span>
+                  { (filesName !== "") && <span className="file-name max-width-30em">{filesName}</span> }
+                  <span className="file-name max-width-30em">
+                    Files Count: {files.length}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
         );
       case 2:
         return (<Tree treeList={items} treeClickEvent={handleItemClicked} checkBoxTree={true} cronsTree={true} />)

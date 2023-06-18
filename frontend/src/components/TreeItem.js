@@ -25,7 +25,11 @@ function TreeItem({object, listItemClickEvent, showCheckbox, isCrons}) {
   console.log(object);
   if (isCrons) {
     if (showCheckbox) {
-
+      return (
+        <div>
+          <input type="checkbox" name={options.name} data-index={index} onChange={updateCheckedValue} id={index} checked={!!inputChecked} /> &nbsp;
+          <label htmlFor={index}>{options.name}</label>
+        </div>);
     } else {
       return (
       <div className="columns">
