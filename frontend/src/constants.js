@@ -10,14 +10,14 @@ export const config = {
 export const MODAL_TYPES = {
   CREATE_CRON: {
     id: 1,
-    MODAL_TITLE: "Modal to create new folder",
-    TRIGGER_BUTTON_TEXT: "Create Folder",
-    SUBMIT_BUTTON_TEXT: "Create Folder"
+    MODAL_TITLE: "Modal to create new Cron",
+    TRIGGER_BUTTON_TEXT: "Create Cron",
+    SUBMIT_BUTTON_TEXT: "Create Cron"
   },
   DELETE_CRONS: {
     id: 2,
-    MODAL_TITLE: "Modal to delete crons",
-    TRIGGER_BUTTON_TEXT: "Delete Items",
-    SUBMIT_BUTTON_TEXT: "Delete Items"
+    MODAL_TITLE: "Modal to delete Cron(s)",
+    TRIGGER_BUTTON_TEXT: "Delete Cron(s)",
+    SUBMIT_BUTTON_TEXT: "Delete Cron(s)"
   }
 };
