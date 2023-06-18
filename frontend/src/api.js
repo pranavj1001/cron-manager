@@ -15,11 +15,11 @@ export const getCrons = () => {
 };
 
 export const postCron = (data) => {
-  return axios.put(URLS["POST_CRON"], { items: data.files }, {
+  return axios.post(URLS["POST_CRON"], data, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
 
 export const deleteCron = (crons) => {
-  return axios.delete(URLS["DELETE_CRON"], { data: { crons } });
+  return axios.delete(URLS["DELETE_CRON"], { data: crons });
 };
