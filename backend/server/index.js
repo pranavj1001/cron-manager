@@ -133,17 +133,20 @@ app.get("/crons", (req, res) => {
 
 app.delete("/cron", (req, res) => {
   try {
-    if (!req.body || !req.body.cronFileName || !req.body.name) {
+    console.log(req.body);
+    if (!req.body || !req.body.length || req.body.length <= 0) {
       res.status(BAD_REQ_ERROR_CODE).json({...errorResponse, status: BAD_REQ_ERROR_CODE, resp: `Request Body is not in proper format`});
       return;
     }
 
     const tasksConfig = JSON.parse(getCronfig());
     let deletedConfig = false;
-    if (tasksConfig && tasksConfig.length > 0 && checkIfTaskConfigExists(tasksConfig, {options: {name: req.body.name}})) {
+    for (const deletedItem of req.body) {
+      if (tasksConfig && tasksConfig.length > 0 && checkIfTaskConfigExists(tasksConfig, {options: {name: deletedItem.options.name}})) {
       for (let i = 0; i < tasksConfig.length; i++) {
-        if (tasksConfig[i].options.name === req.body.name && tasksConfig[i].cronFileName && req.body.cronFileName) {
+          if (tasksConfig[i].options.name === deletedItem.options.name && tasksConfig[i].cronFileName && deletedItem.cronFileName) {
           deletedConfig = popCronfig(tasksConfig, i);
+          }
         }
       }
     }
